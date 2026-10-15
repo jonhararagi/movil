@@ -5,7 +5,8 @@ Android Guardian is an Android-first, privacy-minded wellbeing companion. Its fi
 ## MVP 0.2
 - Spanish text-to-speech feedback when the Android speech engine is available.
 - Optional speech input through Android's installed recognition service. Voice commands can start water, study, pause, going-out, battery, and weather actions; other phrases are placed into the reminder field for confirmation.
-- Local reminder notifications scheduled through Android AlarmManager.
+- Local reminder notifications scheduled through Android AlarmManager and persisted on-device.
+- Pending reminders are restored after app launch, device reboot, and system time/time-zone changes; expired reminders are discarded and delivered reminders are removed from the local schedule.
 - Quick actions for water, a rest break, studying, and getting ready to go out.
 - Battery percentage display and threshold notifications while the app is open and receiving battery broadcasts, with 30% and 20% thresholds re-armed after charging above 33% and 23%.
 - User-triggered weather lookup using GPS permission and Open-Meteo.
@@ -17,7 +18,7 @@ Requires JDK 17, Android SDK platform 35, and Gradle 8.11.1:
 
 ## Important limitations
 - Android can delay inexact alarms due to Doze, OEM battery optimization, or revoked notification permission.
-- Reminder list is session-only and reminders are not re-registered after reboot yet.
+- The on-screen reminder history is a simple list, not a full reminder manager with edit/cancel controls. Alarm delivery remains inexact and can be delayed by Android.
 - Battery threshold monitoring is not a guaranteed always-on background service. Android/OEM restrictions can stop background delivery; current monitoring is active while the app is open.
 - Speech input depends on an installed Android recognition service and may use its own network/service policies. Text-to-speech depends on an installed voice.
 - Weather uses the device's last known location only after the user taps the weather action and grants location permission. Coordinates are sent to Open-Meteo as part of the request.
