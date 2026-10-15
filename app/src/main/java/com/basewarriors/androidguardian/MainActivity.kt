@@ -221,7 +221,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         super.onStart()
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(batteryReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-        else @Suppress("DEPRECATION") registerReceiver(batteryReceiver, filter)
+        else registerReceiver(batteryReceiver, filter)
     }
 
     override fun onStop() {
