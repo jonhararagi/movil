@@ -217,7 +217,6 @@ class MainActivity : ComponentActivity() {
                 val temp = currentWeather.getDouble("temperature_2m")
                 val rain = currentWeather.getDouble("precipitation")
                 runOnUiThread { weatherText = "Ahora: ${temp}°C · precipitación: ${rain} mm. Proveedor: Open-Meteo." }
-                connection.getInputStream().close()
             } catch (e: Exception) {
                 runOnUiThread { weatherText = "No pude consultar el clima: comprueba la conexión e inténtalo de nuevo." }
             }
