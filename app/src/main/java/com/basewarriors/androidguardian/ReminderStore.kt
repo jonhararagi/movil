@@ -56,6 +56,17 @@ object ReminderStore {
             .putString(KEY_ITEMS, json.toString()).apply()
     }
 
+    fun cancel(context: Context, id: Int) {
+        val intent = Intent(context, ReminderReceiver::class.java)
+        val pending = PendingIntent.getBroadcast(
+            context, id, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(pending)
+        pending.cancel()
+        remove(context, id)
+    }
+
     fun restorePending(context: Context) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val now = System.currentTimeMillis()
