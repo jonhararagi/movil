@@ -200,6 +200,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                                 }
                             }
                         }
+                        item { ReminderManagerCard() }
+                        item { StorageCleanerCard() }
                         item {
                             Card(Modifier.fillMaxWidth()) {
                                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
