@@ -117,6 +117,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         super.onCreate(savedInstanceState)
         tts = TextToSpeech(this, this)
         updateBattery()
+        reminders.addAll(ReminderStore.load(this).filter { it.triggerAtMillis > System.currentTimeMillis() }.map { "${it.body} · recordatorio guardado" })
+        ReminderStore.restorePending(this)
         if (Build.VERSION.SDK_INT >= 33 &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -295,6 +297,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         )
         val trigger = System.currentTimeMillis() + delayMinutes * 60_000L
         alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pending)
+        ReminderStore.save(this, GuardianReminder(id, title, trigger))
         reminders.add("$title · en $delayMinutes min")
         reminderText = ""
         statusText = "Recordatorio programado: $title. Android puede retrasarlo por ahorro de batería."
