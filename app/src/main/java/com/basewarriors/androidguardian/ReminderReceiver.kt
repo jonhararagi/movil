@@ -9,6 +9,12 @@ import android.os.Build
 
 class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
+            intent.action == Intent.ACTION_TIME_CHANGED ||
+            intent.action == Intent.ACTION_TIMEZONE_CHANGED) {
+            ReminderStore.restorePending(context)
+            return
+        }
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Pausa amable"
         val body = intent.getStringExtra(EXTRA_BODY) ?: "Es hora de revisar tu recordatorio."
         val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -23,7 +29,9 @@ class ReminderReceiver : BroadcastReceiver() {
             .setContentText(body)
             .setAutoCancel(true)
             .build()
-        manager.notify(intent.getIntExtra(EXTRA_ID, 1), notification)
+        val id = intent.getIntExtra(EXTRA_ID, 1)
+        manager.notify(id, notification)
+        ReminderStore.remove(context, id)
     }
 
     companion object {
