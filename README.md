@@ -9,7 +9,8 @@ Android Guardian is an Android-first, privacy-minded wellbeing companion. Its fi
 - Pending reminders are restored after app launch, device reboot, and system time/time-zone changes; expired reminders are discarded and delivered reminders are removed from the local schedule.
 - Quick actions for water, a rest break, studying, and getting ready to go out.
 - Reminder manager showing pending local reminders and allowing cancellation with confirmation.
-- Careful storage cleanup: user-selected folder scan for old temporary/partial downloads, old logs, old APK installers and old zero-byte files. Every deletion requires selection and a confirmation dialog; no automatic cleanup.
+- Device health overview: internal storage used/free/total with a shortcut to Android's storage settings.
+- Careful storage cleanup: user-selected folder scan for old temporary/partial downloads, old logs, old APK installers, old zero-byte files, screenshots older than 30 days (when their names identify them), and files of 100 MB or more. Large files, APKs, and screenshots are review candidates, not automatically classified as trash. Every deletion requires selection and a confirmation dialog; no automatic cleanup.
 - Battery percentage display and threshold notifications while the app is open and receiving battery broadcasts, with 30% and 20% thresholds re-armed after charging above 33% and 23%.
 - User-triggered weather lookup using GPS permission and Open-Meteo.
 - Balanced, non-intrusive copy and explicit permission requests.
@@ -32,7 +33,7 @@ Requires JDK 17, Android SDK platform 35, and Gradle 8.11.1:
 - Android's Storage Access Framework supports user-selected directory access: https://developer.android.com/training/data-storage/shared/documents-files
 - Android's app-specific storage guidance: https://developer.android.com/training/data-storage/app-specific
 - Alarm precision and special-access requirements: https://developer.android.com/develop/background-work/services/alarms
-- Good follow-up features: scheduled recurring routines, focus/Pomodoro timer with gentle break prompts, weekly wellbeing summaries stored locally, duplicate-photo review with user confirmation, and shortcuts to Android's built-in app/storage settings. Avoid claims of magical RAM boosting and never uninstall or delete another app's private data silently.
+- Next safe increments: visual gallery review using Android's photo picker/MediaStore permissions, duplicate-image matching based on actual content (not filename alone), recurring routines, a focus/Pomodoro timer, and a local weekly wellbeing summary. These should be opt-in, run off the main UI thread, and always offer a review step before deletion. Avoid claims of magical RAM boosting and never uninstall or delete another app's private data silently.
 
 ## Privacy
 Reminders are scheduled locally. Weather requests require network access and use Open-Meteo. The app does not request contacts, accessibility, or notification-listener access. Speech uses Android's system recognition flow rather than an app-hosted audio recorder.
