@@ -48,8 +48,8 @@ internal object AssistantCommandParser {
         val normalized = normalize(trimmed)
         return when {
             normalized.contains("ayuda") ||
-                normalized == "que puedes hacer" ||
-                normalized == "que haces" ->
+                normalized.contains("que puedes hacer") ||
+                normalized.contains("que haces") ->
                 AssistantDecision(AssistantIntent.HELP)
 
             normalized.contains("bateria") ->
