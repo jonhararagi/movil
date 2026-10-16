@@ -34,6 +34,8 @@ class AssistantCommandParserTest {
     fun unknownOrEmptyInputNeverBecomesAnAction() {
         assertEquals(AssistantIntent.UNKNOWN, AssistantCommandParser.parse("").intent)
         assertEquals(AssistantIntent.UNKNOWN, AssistantCommandParser.parse("manda un mensaje").intent)
+        assertEquals(AssistantIntent.UNKNOWN, AssistantCommandParser.parse("No quiero agua").intent)
+        assertEquals(AssistantIntent.UNKNOWN, AssistantCommandParser.parse("Quiero estudiar y descansar").intent)
         assertTrue(AssistantCommandParser.parse("manda un mensaje").reminderText.isEmpty())
     }
 
