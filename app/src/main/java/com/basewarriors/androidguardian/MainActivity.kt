@@ -259,22 +259,38 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun handleVoiceCommand(raw: String) {
-        val command = raw.lowercase(Locale.ROOT)
-        when {
-            "bater" in command -> { updateBattery(); speak("La batería está en $batteryText") }
-            "clima" in command || "lluvia" in command || "paraguas" in command -> { requestWeatherPermission(); speak("Voy a consultar el clima con tu permiso.") }
-            "agua" in command -> quickReminder("Tomar agua", 60)
-            "estudi" in command -> quickReminder("Hora de estudiar", 30)
-            "pausa" in command || "descans" in command -> quickReminder("Pausa de descanso", 60)
-            "salir" in command || "caminar" in command -> quickReminder("Prepararme para salir", 45)
-            "recordatorio" in command || "recuerd" in command -> {
-                val cleaned = raw.replace(Regex("(?i)^(pon(me)?|crea(me)?|añade|agrega)?\\s*(un )?(recordatorio|recuérdame)\\s*(de|para)?\\s*"), "").trim()
-                reminderText = cleaned.ifBlank { raw }
-                speak("He preparado el texto. Elige cinco minutos o una hora para programarlo.")
-            }
-            else -> {
-                reminderText = raw
-                speak("He puesto lo que dijiste en el campo de recordatorio. Elige cuándo quieres que te avise.")
+        when (val decision = AssistantCommandParser.parse(raw)) {
+            is AssistantDecision -> when (decision.intent) {
+                AssistantIntent.CHECK_BATTERY -> {
+                    updateBattery()
+                    speak("La batería está en $batteryText")
+                }
+                AssistantIntent.CHECK_WEATHER -> {
+                    requestWeatherPermission()
+                    speak("Voy a consultar el clima con tu permiso.")
+                }
+                AssistantIntent.WATER -> quickReminder("Tomar agua", 60)
+                AssistantIntent.STUDY -> quickReminder("Hora de estudiar", 30)
+                AssistantIntent.BREAK -> quickReminder("Pausa de descanso", 60)
+                AssistantIntent.GO_OUT -> quickReminder("Prepararme para salir", 45)
+                AssistantIntent.PREPARE_REMINDER -> {
+                    reminderText = decision.reminderText
+                    if (decision.reminderText.isBlank()) {
+                        speechText = "Falta el texto del recordatorio."
+                        speak("¿Qué quieres que te recuerde? Escribe el detalle y elige cuándo.")
+                    } else {
+                        speechText = "Preparé el texto, pero todavía no programé nada."
+                        speak("He preparado el texto. Revisa el recordatorio y elige cuándo quieres que te avise.")
+                    }
+                }
+                AssistantIntent.HELP -> {
+                    speechText = "Puedo ayudarte con agua, estudio, pausas, salir, batería, clima y recordatorios."
+                    speak("Puedo ayudarte con agua, estudio, pausas, salir, batería, clima y recordatorios. Para algo nuevo, todavía necesito que me lo expliques.")
+                }
+                AssistantIntent.UNKNOWN -> {
+                    speechText = "No entendí esa orden y no hice ninguna acción. Prueba con agua, estudiar, pausa, salir, batería, clima o recordatorio."
+                    speak("No entendí esa orden y no hice ninguna acción. Puedes probar con una acción conocida o escribir tu recordatorio.")
+                }
             }
         }
     }
