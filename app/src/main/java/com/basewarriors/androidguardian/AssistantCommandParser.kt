@@ -55,7 +55,7 @@ internal object AssistantCommandParser {
             normalized.contains("bateria") ->
                 AssistantDecision(AssistantIntent.CHECK_BATTERY)
 
-            listOf("clima", "lluvia", "paraguas", "temperatura").any(normalized::contains) ->
+            listOf("clima", "lluvia", "llover", "llueve", "lloviendo", "paraguas", "temperatura").any(normalized::contains) ->
                 AssistantDecision(AssistantIntent.CHECK_WEATHER)
 
             listOf("agua", "hidratar", "beber").any(normalized::contains) ->
