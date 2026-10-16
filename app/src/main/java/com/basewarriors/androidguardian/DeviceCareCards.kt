@@ -2,6 +2,10 @@ package com.basewarriors.androidguardian
 
 import android.database.Cursor
 import android.net.Uri
+import android.os.Environment
+import android.os.StatFs
+import android.content.Intent
+import android.provider.Settings
 import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +20,48 @@ import androidx.compose.ui.unit.dp
 import java.util.Locale
 
 private data class JunkFile(val uri: Uri, val name: String, val size: Long, val reason: String)
+
+
+@Composable
+fun DeviceHealthCard() {
+    val context = LocalContext.current
+    var refresh by remember { mutableIntStateOf(0) }
+    val storage = remember(refresh) {
+        try {
+            val stats = StatFs(Environment.getDataDirectory().absolutePath)
+            val total = stats.totalBytes
+            val free = stats.availableBytes
+            Triple(total, free, (total - free).coerceAtLeast(0L))
+        } catch (_: Exception) {
+            Triple(0L, 0L, 0L)
+        }
+    }
+    val percent = if (storage.first > 0L) (storage.third * 100L / storage.first).toInt() else 0
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("🛡️ Salud del dispositivo", style = MaterialTheme.typography.titleLarge)
+            if (storage.first > 0L) {
+                Text("Almacenamiento interno usado: $percent%")
+                LinearProgressIndicator(progress = { percent / 100f }, modifier = Modifier.fillMaxWidth())
+                Text("Usado: ${prettyBytes(storage.third)} · Disponible: ${prettyBytes(storage.second)}")
+                Text("Capacidad total: ${prettyBytes(storage.first)}")
+            } else {
+                Text("No pude leer las estadísticas de almacenamiento.")
+            }
+            Text("Android Guardian no promete acelerar mágicamente la RAM ni cerrar procesos a la fuerza. Te ayuda a encontrar archivos revisables y abre los ajustes oficiales para liberar espacio con control.")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { refresh++ }) { Text("Actualizar") }
+                Button(onClick = {
+                    try {
+                        context.startActivity(Intent(Settings.ACTION_INTERNAL_STORAGE_SETTINGS))
+                    } catch (_: Exception) {
+                        context.startActivity(Intent(Settings.ACTION_SETTINGS))
+                    }
+                }) { Text("Ajustes de almacenamiento") }
+            }
+        }
+    }
+}
 
 @Composable
 fun StorageCleanerCard() {
