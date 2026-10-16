@@ -259,8 +259,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun handleVoiceCommand(raw: String) {
-        when (val decision = AssistantCommandParser.parse(raw)) {
-            is AssistantDecision -> when (decision.intent) {
+        val decision = AssistantCommandParser.parse(raw)
+        when (decision.intent) {
                 AssistantIntent.CHECK_BATTERY -> {
                     updateBattery()
                     speak("La batería está en $batteryText")
@@ -291,7 +291,6 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     speechText = "No entendí esa orden y no hice ninguna acción. Prueba con agua, estudiar, pausa, salir, batería, clima o recordatorio."
                     speak("No entendí esa orden y no hice ninguna acción. Puedes probar con una acción conocida o escribir tu recordatorio.")
                 }
-            }
         }
     }
 
