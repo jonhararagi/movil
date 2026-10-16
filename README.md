@@ -35,5 +35,17 @@ Requires JDK 17, Android SDK platform 35, and Gradle 8.11.1:
 - Alarm precision and special-access requirements: https://developer.android.com/develop/background-work/services/alarms
 - Next safe increments: visual gallery review using Android's photo picker/MediaStore permissions, duplicate-image matching based on actual content (not filename alone), recurring routines, a focus/Pomodoro timer, and a local weekly wellbeing summary. These should be opt-in, run off the main UI thread, and always offer a review step before deletion. Avoid claims of magical RAM boosting and never uninstall or delete another app's private data silently.
 
+## Paimon híbrida: primera base
+
+La siguiente evolución está definida en [docs/PAIMON_HYBRID_ARCHITECTURE.md](docs/PAIMON_HYBRID_ARCHITECTURE.md). El objetivo es una compañera cálida con avatar anime, organización personal y chat remoto opcional, manteniendo las funciones esenciales en el teléfono.
+
+- Router local determinista para batería, clima, agua, estudio, pausas, salida, ayuda y preparación de recordatorios.
+- Los comandos desconocidos devuelven una respuesta de aclaración y no ejecutan acciones automáticamente.
+- Pruebas unitarias para comandos conocidos, acentos, prioridad de recordatorios y texto desconocido.
+- Esta fase no incorpora API keys, motor LLM local, permiso de accesibilidad ni micrófono de escucha permanente.
+- La integración remota futura debe tener cancelación, timeout, presupuesto/límites y consentimiento; el modelo no recibe acceso directo a APIs Android ni puede ejecutar herramientas fuera de una lista permitida.
+
+**TIMER AG-PAIMON-001:** 1–2 días efectivos estimados para completar y validar esta primera base. La ejecución de CI y el uso en un Xiaomi físico se registran por separado; el éxito de compilación no equivale a validar el comportamiento en el dispositivo.
+
 ## Privacy
 Reminders are scheduled locally. Weather requests require network access and use Open-Meteo. The app does not request contacts, accessibility, or notification-listener access. Speech uses Android's system recognition flow rather than an app-hosted audio recorder.
