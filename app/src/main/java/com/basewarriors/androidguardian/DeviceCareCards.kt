@@ -49,10 +49,14 @@ fun StorageCleanerCard() {
                             val n = name.lowercase(Locale.ROOT)
                             val old = modified > 0 && modified < cutoff
                             val apkOld = modified > 0 && modified < System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+                            val screenshotOld = modified > 0 && modified < System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+                            val screenshotName = n.contains("screenshot") || n.contains("captura") || n.contains("captura_de_pantalla") || n.contains("screen_shot")
                             val reason = when {
-                                size == 0L && old -> "Archivo vacío antiguo"
-                                old && (n.endsWith(".tmp") || n.endsWith(".temp") || n.endsWith(".part") || n.endsWith(".partial") || n.endsWith(".crdownload") || n.endsWith(".log")) -> "Temporal antiguo"
                                 apkOld && n.endsWith(".apk") -> "Instalador APK antiguo, revisar"
+                                old && (n.endsWith(".tmp") || n.endsWith(".temp") || n.endsWith(".part") || n.endsWith(".partial") || n.endsWith(".crdownload") || n.endsWith(".log")) -> "Temporal antiguo"
+                                screenshotOld && screenshotName -> "Captura de pantalla antigua, revisar"
+                                size >= 100L * 1024 * 1024 -> "Archivo grande (100 MB o más), revisar antes de borrar"
+                                size == 0L && old -> "Archivo vacío antiguo"
                                 else -> null
                             }
                             if (reason != null) files.add(JunkFile(DocumentsContract.buildDocumentUriUsingTree(uri, childId), name, size, reason))
@@ -77,8 +81,8 @@ fun StorageCleanerCard() {
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("🧹 Limpieza cuidadosa", style = MaterialTheme.typography.titleLarge)
-            Text("Busca temporales, descargas parciales, logs, APK antiguos y archivos vacíos en una carpeta que elijas.")
-            Text("Por las protecciones de Android, no puede borrar libremente datos privados de otras apps. Solo analiza la carpeta autorizada.")
+            Text("Busca temporales, descargas parciales, logs, APK antiguos, archivos vacíos, capturas antiguas y archivos grandes (100 MB o más) en una carpeta que elijas. Todo se revisa antes de borrar.")
+            Text("Los archivos grandes, APK y capturas se marcan para que los revises, no porque sean basura segura. Por las protecciones de Android, solo analiza la carpeta autorizada y no puede limpiar los datos privados de otras apps.")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { picker.launch(tree) }) { Text("Elegir carpeta y analizar") }
                 OutlinedButton(onClick = { tree?.let { scan(it) } }, enabled = tree != null) { Text("Reanalizar") }
