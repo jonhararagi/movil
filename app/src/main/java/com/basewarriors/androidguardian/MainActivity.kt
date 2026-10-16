@@ -200,6 +200,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                                 }
                             }
                         }
+                        item { DeviceHealthCard() }
                         item { ReminderManagerCard() }
                         item { StorageCleanerCard() }
                         item {
