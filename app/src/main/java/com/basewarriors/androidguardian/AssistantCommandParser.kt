@@ -6,9 +6,9 @@ import java.util.Locale
 /**
  * Deterministic, on-device command routing.
  *
- * This parser must never perform device actions itself. It only classifies the
- * user's words; MainActivity (and later an explicit action policy) owns effects.
- * Unknown phrases intentionally remain UNKNOWN instead of being guessed by an AI.
+ * This parser never performs device actions. It classifies unambiguous requests;
+ * MainActivity (and later an explicit action policy) owns all side effects.
+ * Unknown, negated and multi-intent phrases intentionally remain UNKNOWN.
  */
 internal enum class AssistantIntent {
     CHECK_BATTERY,
@@ -33,6 +33,15 @@ internal object AssistantCommandParser {
             "(?:un\\s+)?(?:recordatorio|recuérdame|recuerdame)(?:\\s+(?:de|para|que))?\\s*"
     )
 
+    private val rules = listOf(
+        AssistantIntent.CHECK_BATTERY to listOf("bateria"),
+        AssistantIntent.CHECK_WEATHER to listOf("clima", "lluvia", "llover", "llueve", "lloviendo", "paraguas", "temperatura"),
+        AssistantIntent.WATER to listOf("agua", "hidratar", "beber"),
+        AssistantIntent.STUDY to listOf("estudiar", "estudio", "estudi"),
+        AssistantIntent.BREAK to listOf("pausa", "descansar", "descanso"),
+        AssistantIntent.GO_OUT to listOf("salir", "caminar", "pasear")
+    )
+
     fun parse(raw: String): AssistantDecision {
         val trimmed = raw.trim()
         if (trimmed.isEmpty()) return AssistantDecision(AssistantIntent.UNKNOWN)
@@ -46,33 +55,35 @@ internal object AssistantCommandParser {
         }
 
         val normalized = normalize(trimmed)
-        return when {
-            normalized.contains("ayuda") ||
-                normalized.contains("que puedes hacer") ||
-                normalized.contains("que haces") ->
-                AssistantDecision(AssistantIntent.HELP)
+        if (isNegatedOrCancellation(normalized)) {
+            return AssistantDecision(AssistantIntent.UNKNOWN)
+        }
 
-            normalized.contains("bateria") ->
-                AssistantDecision(AssistantIntent.CHECK_BATTERY)
+        if (normalized.contains("ayuda") ||
+            normalized.contains("que puedes hacer") ||
+            normalized.contains("que haces")
+        ) {
+            return AssistantDecision(AssistantIntent.HELP)
+        }
 
-            listOf("clima", "lluvia", "llover", "llueve", "lloviendo", "paraguas", "temperatura").any(normalized::contains) ->
-                AssistantDecision(AssistantIntent.CHECK_WEATHER)
-
-            listOf("agua", "hidratar", "beber").any(normalized::contains) ->
-                AssistantDecision(AssistantIntent.WATER)
-
-            listOf("estudiar", "estudio", "estudi").any(normalized::contains) ->
-                AssistantDecision(AssistantIntent.STUDY)
-
-            listOf("pausa", "descansar", "descanso").any(normalized::contains) ->
-                AssistantDecision(AssistantIntent.BREAK)
-
-            listOf("salir", "caminar", "pasear").any(normalized::contains) ->
-                AssistantDecision(AssistantIntent.GO_OUT)
-
-            else -> AssistantDecision(AssistantIntent.UNKNOWN)
+        val matchedRules = rules.filter { (_, phrases) -> phrases.any(normalized::contains) }
+        return if (matchedRules.size == 1) {
+            AssistantDecision(matchedRules.single().first)
+        } else {
+            // More than one possible action is ambiguous. Never guess which to run.
+            AssistantDecision(AssistantIntent.UNKNOWN)
         }
     }
+
+    private fun isNegatedOrCancellation(value: String): Boolean =
+        value.startsWith("no ") ||
+            value.startsWith("no me ") ||
+            value.startsWith("no hagas ") ||
+            value.startsWith("deja de ") ||
+            value.startsWith("cancela ") ||
+            value.startsWith("para ") ||
+            value.contains(" no quiero ") ||
+            value.contains(" no necesito ")
 
     private fun normalize(value: String): String =
         Normalizer.normalize(value.lowercase(Locale.ROOT), Normalizer.Form.NFD)
